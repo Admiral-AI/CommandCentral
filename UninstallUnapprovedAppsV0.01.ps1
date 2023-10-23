@@ -23,46 +23,16 @@
 
 function Start_Variables {
     # List of apps to exclude from uninstallation
-    $preApprovedAppsList = @(
-        # Critical Apps (i.e. Networking, Logging, Firewalls)
-        "ClearPass OnGuard",
-        "Trend Micro",
-        "FlexNet Inventory",
-        "Rapid7",
-        "UniversalForwarder",
-        "GTB Technologies",
-        "Ivanti",
-        "VNC",
-        "Local Administrator Password Solution",
-
-        # Productivity Apps
-        "Microsoft 365 Apps",
-        "Microsoft OneDrive",
-        "Office 16 Click-to-Run",
-        "Teams Machine",
-        "ZOC Terminal",
-        "IC User Applications",
-        "Google Chrome",
-
-        # System Dependencies
-        "DefaultPackMSI",
-        "Microsoft Edge",
-        "Microsoft Update",
-        "Microsoft Search in Bing",
-        "Microsoft Visual C++ 2019 X86",
-        "Microsoft Visual C++ 2019 X64",
-        "Microsoft Visual C++ 2015-2019 Redistributable",
-        "Microsoft Intune Management Extension",
-		
-		#Test on VM
-		"Red Hat QXL controller",
-		"Update for Windows 10 for x64-based Systems (KB5001716)",
-		"ViGEm Bus Driver",
-		"Virtio-win-driver-installer",
-		"QEMU guest agent",
-		"Spice Agent 0.10.0-5 (64-bit)",
-		"TeamViewer",
-		"Virtio-win-guest-tools"
+    $preApprovedAppsList = @(	
+	#Test on VM
+	"Red Hat QXL controller",
+	"Update for Windows 10 for x64-based Systems (KB5001716)",
+	"ViGEm Bus Driver",
+	"Virtio-win-driver-installer",
+  	"QEMU guest agent",
+	"Spice Agent 0.10.0-5 (64-bit)",
+	"TeamViewer",
+	"Virtio-win-guest-tools"
     )
 
     $logFilePath = "C:\Temp\Log\"
