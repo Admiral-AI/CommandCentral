@@ -51,7 +51,7 @@ If you'd like to contribute to Command Central, please follow our [Contributing 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU GENERAL PUBLIC License v3.0 - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
