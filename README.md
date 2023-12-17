@@ -1,4 +1,4 @@
-# Command Central (Under Development - Scripting Stage)
+# Command Central (Under Development - 1 Function Released)
 
 ## Introduction
 
