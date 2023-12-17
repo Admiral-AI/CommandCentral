@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Command Central is a powerful GUI tool under construction that is designed for Helpdesk and Desktop Support Technicians (for advanced proffesionals too!). It simplifies common tasks and automates various processes, making it an invaluable resource for both beginners and advanced professionals in the IT field.
+Command Central is a powerful GUI tool under construction that is designed for Helpdesk and Desktop Support Technicians (for advanced profesionals too!). It simplifies common tasks and automates various processes, making it an invaluable resource for both beginners and advanced professionals in the IT field.
 
 ## Features
 
