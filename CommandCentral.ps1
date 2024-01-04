@@ -143,7 +143,7 @@ Making the complicated simple, awesomely simple, that's creativity
             $scriptSelected = $ps1Options[$userChoice - 1] + ".ps1"
             $scriptPath = Join-Path $workingDirectory $scriptSelected #.FullName
             Write-Host "Running script: $($ps1Options[$userChoice - 1])" -ForegroundColor Green
-            Unblock-File $scriptPath4
+            Unblock-File $scriptPath
         
             . $scriptPath
         } elseif ($userChoice -le ($ps1Options.Count + $subOptions.Count)) {
