@@ -5,7 +5,42 @@ function Main {
     Clear-Host
 
     Get-UserCredentials
+}
 
+function Check-Updates {
+    
+    #Need to add check for RSAT install
+    <#if($null -eq (Get-Module -ListAvailable -Name ActiveDirectory))
+    {
+        Write-Host -ForegroundColor Red "Remote Server Administration Tools isn't installed!"
+        Try{
+            Start-Process powershell -Verb runas -PassThru -ArgumentList `
+            "'Installing RSAT...'; Get-WindowsCapability -Name RSAT.ActiveDirectory* -Online | Add-WindowsCapability -Online; Read-Host 'Please reboot your computer to complete installation'"
+            }
+        Catch{Write-Host -ForegroundColor Red "Installation failed. Please install manually and run this tool again";exit}
+    }#>
+
+    $moduleList = @(
+        'TUN.CredentialManager'
+    )
+
+    foreach ($module in $moduleList) {
+        if (Get-Module -ListAvailable -Name $module) {
+            Write-Host "Module: $($module) exists"
+        } 
+        else {
+            Write-Host "Module: $($module) does not exist. Installing..."
+            Install-Module -Name $module -Scope CurrentUser -Force
+        }
+    }
+
+
+
+    # Clear the screen before heading to the next functions
+    Clear-Host
+
+    # Call the Set-DisplayMenu function and pass the starting directory from Main
+    Set-DisplayMenu
 }
 
 function Get-UserCredentials {
@@ -21,30 +56,17 @@ function Get-UserCredentials {
     if ($computerSystem.PartofDomain -eq $true) {
         Write-Host "Computer is in a domain: $($computerSystem.Domain)"
         
-        # Will further expand on this section to query AD to try to find all admin account associated with the current user
-        # But for the time being I will statically program 3 credential sets: Regular, Sprt, ADM
+        $userFirstName = $(Get-ADUser -Identity $env:username).GivenName
+        $userLastName = $(Get-ADUser -Identity $env:username).Surname
+        $accountsToQuery = Get-ADUser -Filter $("(GivenName -like '*$($userFirstName)*') -and (sn -like '*$($userLastName)*') -and (Enabled -eq 'True')")
 
-        # Try to get stored credentials, and if any of them are null, prompt for credentials
-        $regUserCred = Get-StoredCredential -Target CommandCentral-User -AsCredentialObject
-        $sprtUserCred = Get-StoredCredential -Target CommandCentral-Sprt -AsCredentialObject
-        $admUserCred = Get-StoredCredential -Target CommandCentral-ADM -AsCredentialObject
-
-        # Check if any of the stored credentials are null, and prompt for credentials if needed
-        if ($null -eq $regUserCred) {
-            $regUserCred = Get-Credential -UserName $env:USERNAME -Message "Please provide your credentials for the following account: $($env:USERNAME)"
-            $regUserCred = New-StoredCredential -Target CommandCentral-User -Credential $regUserCred -Persist ENTERPRISE
-        }
-
-        if ($null -eq $sprtUserCred) {
-            $sprtUsername = "$($env:USERNAME)_sprt"
-            $sprtUserCred = Get-Credential -UserName $sprtUsername -Message "Please provide your credentials for the following account: $($env:USERNAME)_sprt"
-            $sprtUserCred = New-StoredCredential -Target CommandCentral-Sprt -Credential $sprtUserCred -Persist ENTERPRISE
-        }
-
-        if ($null -eq $admUserCred) {
-            $admUsername = "$($env:USERNAME)_adm"
-            $admUserCred = Get-Credential -UserName $admUsername -Message "Please provide your credentials for the following account: $($env:USERNAME)_adm"
-            $admUserCred = New-StoredCredential -Target CommandCentral-ADM -Credential $admUserCred -Persist ENTERPRISE
+        foreach ($accountToQuery in $accountsToQuery) {
+            $userCred = Get-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)"
+            
+            if ($null -eq $userCred) {
+                 $userCred = Get-Credential -UserName "$($Env:UserDomain)\$($accountToQuery.SamAccountName)" -Message "Please provide your credentials for the following account: $($Env:UserDomain)\$($accountToQuery.SamAccountName)"
+                 New-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)" -Credential $userCred -Persist ENTERPRISE
+            }
         }
 
     } else {
@@ -54,8 +76,8 @@ function Get-UserCredentials {
     # Clear the screen before heading to the next functions
     Clear-Host
 
-    # Call the Set-DisplayMenu function and pass the starting directory from Main
-    Set-DisplayMenu -startingDirectory $startingDirectory
+    # Call the Check-Updates function
+    Check-Updates
 
 }
 
@@ -143,6 +165,7 @@ Making the complicated simple, awesomely simple, that's creativity
             $scriptSelected = $ps1Options[$userChoice - 1] + ".ps1"
             $scriptPath = Join-Path $workingDirectory $scriptSelected #.FullName
             Write-Host "Running script: $($ps1Options[$userChoice - 1])" -ForegroundColor Green
+            Start-Sleep .75
             Unblock-File $scriptPath
         
             . $scriptPath
@@ -151,9 +174,11 @@ Making the complicated simple, awesomely simple, that's creativity
             $selectedDir = $subdirectories[$userChoice - $ps1Options.Count - 1]
             if ((Get-ChildItem -Path $selectedDir.FullName).Count -eq 0) {
                 Write-Host "Selected subdirectory is empty." -ForegroundColor Red
+                Start-Sleep .75
             } else {
                 $workingDirectory = Join-Path $workingDirectory $selectedDir
                 Write-Host "Entered the selected subdirectory." -ForegroundColor Blue
+                Start-Sleep .75
             }
         } elseif (($userChoice -eq $($($ps1Options.Count) + $($subOptions.Count) + 1) -and ($optionToQuit -eq 0))) {
             # Go back one directory if not in the starting directory
@@ -163,14 +188,16 @@ Making the complicated simple, awesomely simple, that's creativity
         } elseif ((($userChoice -eq $($($ps1Options.Count) + $($subOptions.Count) + 1) -or ($userChoice -eq 'q') -or ($userChoice -eq 'quit'))-and ($optionToQuit -eq 1))) {
             $userChoice = 'quit'
             Write-Host "Exiting CommandCentral..."
-            Start-Sleep .5
+            Start-Sleep .75
         } else {
             $userChoice = $null
             Write-Host "Invalid entry, please enter an option from the list" -ForegroundColor Red
-            Start-Sleep .5
+            Start-Sleep .75
         }
+
         # Clear the console
-        # Clear-Host
+        Clear-Host
+
     }
  
     # Clear the console
