@@ -1,6 +1,8 @@
 # Main function
 function Main {
     
+    # testing Updates using this line
+
     # Set transcript log path based on 
     $tramscriptLogPath = Join-Path -Path $PSScriptRoot -ChildPath "\SystemD\Log\transcriptLog.txt"
     Start-Transcript $tramscriptLogPath
