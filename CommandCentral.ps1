@@ -70,7 +70,7 @@ function Check-Updates {
     Write-Host "The script is at: $($PSCommandPath)"
 
     $scriptOnGithub = $(Invoke-RestMethod -Uri "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1").Trim()
-    $scriptOnLocalDisk = Get-Content -Path $($PSCommandPath)
+    $scriptOnLocalDisk = Get-Content -Path $($PSCommandPath) -Raw
 
     # Use Compare-Object to compare the contents of the two files
     $fileComparison = Compare-Object -ReferenceObject ($scriptOnGithub) -DifferenceObject ($scriptOnLocalDisk)
