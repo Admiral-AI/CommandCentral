@@ -7,6 +7,47 @@ function Main {
     Get-UserCredentials
 }
 
+# Function to get user credentials
+function Get-UserCredentials {
+    <#
+    param (
+        [string]$startingDirectory
+    )
+    #>
+    
+    # Get the CIM_ComputerSystem CIM class
+    $computerSystem = Get-CimInstance Win32_ComputerSystem
+    # Check if the domain property is not empty
+    if ($computerSystem.PartofDomain -eq $true) {
+        Write-Host "Computer is in a domain: $($computerSystem.Domain)"
+        
+        $userFirstName = $(Get-ADUser -Identity $env:username).GivenName
+        $userLastName = $(Get-ADUser -Identity $env:username).Surname
+        $accountsToQuery = Get-ADUser -Filter $("(GivenName -like '*$($userFirstName)*') -and (sn -like '*$($userLastName)*') -and (Enabled -eq 'True')")
+
+        foreach ($accountToQuery in $accountsToQuery) {
+            $userCred = Get-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)"
+            
+            if ($null -eq $userCred) {
+                 $userCred = Get-Credential -UserName "$($Env:UserDomain)\$($accountToQuery.SamAccountName)" -Message "Please provide your credentials for the following account: $($Env:UserDomain)\$($accountToQuery.SamAccountName)"
+                 New-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)" -Credential $userCred -Persist ENTERPRISE
+            }
+        }
+
+    } else {
+        Write-Host "Computer is in a workgroup, credentials are assumed to not be needed (administrator running script)"
+        Sleep 2
+    }
+
+    # Clear the screen before heading to the next functions
+    Clear-Host
+
+    # Call the Check-Updates function
+    Check-Updates
+
+}
+
+# Function to check for module and script updates
 function Check-Updates {
     
     #Need to add check for RSAT install
@@ -41,44 +82,6 @@ function Check-Updates {
 
     # Call the Set-DisplayMenu function and pass the starting directory from Main
     Set-DisplayMenu
-}
-
-function Get-UserCredentials {
-    <#
-    param (
-        [string]$startingDirectory
-    )
-    #>
-    
-    # Get the CIM_ComputerSystem CIM class
-    $computerSystem = Get-CimInstance Win32_ComputerSystem
-    # Check if the domain property is not empty
-    if ($computerSystem.PartofDomain -eq $true) {
-        Write-Host "Computer is in a domain: $($computerSystem.Domain)"
-        
-        $userFirstName = $(Get-ADUser -Identity $env:username).GivenName
-        $userLastName = $(Get-ADUser -Identity $env:username).Surname
-        $accountsToQuery = Get-ADUser -Filter $("(GivenName -like '*$($userFirstName)*') -and (sn -like '*$($userLastName)*') -and (Enabled -eq 'True')")
-
-        foreach ($accountToQuery in $accountsToQuery) {
-            $userCred = Get-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)"
-            
-            if ($null -eq $userCred) {
-                 $userCred = Get-Credential -UserName "$($Env:UserDomain)\$($accountToQuery.SamAccountName)" -Message "Please provide your credentials for the following account: $($Env:UserDomain)\$($accountToQuery.SamAccountName)"
-                 New-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)" -Credential $userCred -Persist ENTERPRISE
-            }
-        }
-
-    } else {
-        Write-Host "Computer is in a workgroup, credentials are assumed to not be needed (administrator running script)"
-    }
-
-    # Clear the screen before heading to the next functions
-    Clear-Host
-
-    # Call the Check-Updates function
-    Check-Updates
-
 }
 
 # Function to display a menu and handle user input
