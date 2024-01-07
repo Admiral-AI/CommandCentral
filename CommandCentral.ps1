@@ -79,6 +79,7 @@ function Check-Updates {
     # Check the result
     if ($fileComparison.Count -eq 0) {
         Write-Output "No updates found, proceeding to update modules."
+        $updateAndRestartScriptBoolean = $false
     } else {
         Write-Output "Update found! Updating local script and restarting."
         $updateAndRestartScriptBoolean = $true
@@ -110,11 +111,12 @@ function Check-Updates {
         Write-Host "Attempted to pull update, now opening script again..."
         Start-Process powershell -ArgumentList "-File $($PSCommandPath)"
         Write-Host "Exiting CommandCentral..."
+        Read-Host "Please confirm the exit"
         Start-Sleep .75
     }
 }
 
-# Function to display a menu and handle user input
+# Function to display a menu and handle user inpu
 function Set-DisplayMenu {
     <# Parameters from Main function
     param (
