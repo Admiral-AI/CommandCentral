@@ -61,6 +61,22 @@ function Check-Updates {
         Catch{Write-Host -ForegroundColor Red "Installation failed. Please install manually and run this tool again";exit}
     }#>
 
+    $scriptOnGithub = $(Invoke-RestMethod -Uri "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1").Trim()
+    $scriptOnLocalDisk = Get-Content -Path $PSScriptRoot
+
+    # Use Compare-Object to compare the contents of the two files
+    $fileComparison = Compare-Object -ReferenceObject ($scriptOnGithub) -DifferenceObject ($scriptOnLocalDisk)
+
+    # Check the result
+    if ($fileComparison.Count -eq 0) {
+        Write-Output "Files are identical."
+    } else {
+        Write-Output "Files are different."
+        $fileComparison | ForEach-Object {
+        #Write-Output $_.InputObject
+        }
+    }
+
     $moduleList = @(
         'TUN.CredentialManager'
     )
@@ -74,8 +90,6 @@ function Check-Updates {
             Install-Module -Name $module -Scope CurrentUser -Force
         }
     }
-
-
 
     # Clear the screen before heading to the next functions
     Clear-Host
