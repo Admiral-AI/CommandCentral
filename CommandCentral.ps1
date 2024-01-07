@@ -5,6 +5,10 @@ function Main {
     $tramscriptLogPath = Join-Path -Path $PSScriptRoot -ChildPath "\SystemD\Log\transcriptLog.txt"
     Start-Transcript $tramscriptLogPath
 
+    # Get the path of the current script and set the github repository location
+    $currentScriptPath = $PSCommandPath
+    $scriptGithubUri = "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1"
+
     # Clear the console
     Clear-Host
 
@@ -67,9 +71,7 @@ function Check-Updates {
         Catch{Write-Host -ForegroundColor Red "Installation failed. Please install manually and run this tool again";exit}
     }#>
 
-    Write-Host "The script is at: $($PSCommandPath)"
-
-    $scriptOnGithub = $(Invoke-RestMethod -Uri "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1").Trim()
+    $scriptOnGithub = $(Invoke-RestMethod -Uri $scriptGithubUri).Trim()
     $scriptOnLocalDisk = Get-Content -Path $($PSCommandPath) -Raw
 
     # Use Compare-Object to compare the contents of the two files
@@ -77,35 +79,36 @@ function Check-Updates {
 
     # Check the result
     if ($fileComparison.Count -eq 0) {
-        Write-Output "Files are identical."
+        Write-Output "No updates found, proceeding to update modules."
     } else {
-        Write-Output "Files are different."
-        $fileComparison | ForEach-Object {
-        #Write-Output $_.InputObject
-        }
+        Write-Output "Update found! Updating local script and restarting."
+        $updateAndRestartScriptBoolean = $true
     }
 
-    $moduleList = @(
-        'TUN.CredentialManager'
-    )
+    if ($updateAndRestartScriptBoolean -ne $true) {
+        $moduleList = @(
+            'TUN.CredentialManager'
+        )
 
-    foreach ($module in $moduleList) {
-        if (Get-Module -ListAvailable -Name $module) {
-            Write-Host "Module: $($module) exists"
-        } 
-        else {
-            Write-Host "Module: $($module) does not exist. Installing..."
-            Install-Module -Name $module -Scope CurrentUser -Force
+        foreach ($module in $moduleList) {
+            if (Get-Module -ListAvailable -Name $module) {
+                Write-Host "Module: $($module) exists"
+            } 
+            else {
+                Write-Host "Module: $($module) does not exist. Installing..."
+                Install-Module -Name $module -Scope CurrentUser -Force
+            }
         }
-    }
-
-    # Clear the screen before heading to the next functions
-    Clear-Host
-
-    if ($updateAndRestartScriptBoolean -ne 1) {
+        
+        # Clear the screen before heading to the next functions
+        Clear-Host
+        
         # Call the Set-DisplayMenu function
         Set-DisplayMenu
     } else {
+        Invoke-WebRequest -Uri $scriptGithubUri -OutFile $PSCommandPath
+        Write-Host "Attempted to pull update, now opening script again..."
+        Start-Process powershell -ArgumentList "-File $($currentScriptPath)"
         Write-Host "Exiting CommandCentral..."
         Start-Sleep .75
     }
