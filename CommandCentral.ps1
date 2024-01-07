@@ -1,10 +1,16 @@
 # Main function
 function Main {
+    
+    # Set transcript log path based on 
+    $tramscriptLogPath = Join-Path -Path $PSScriptRoot -ChildPath "\SystemD\Log\transcriptLog.txt"
+    Start-Transcript $tramscriptLogPath
 
     # Clear the console
     Clear-Host
 
     Get-UserCredentials
+
+    Stop-Transcript
 }
 
 # Function to get user credentials
@@ -61,8 +67,10 @@ function Check-Updates {
         Catch{Write-Host -ForegroundColor Red "Installation failed. Please install manually and run this tool again";exit}
     }#>
 
+    Write-Host "The script is at: $($PSCommandPath)"
+
     $scriptOnGithub = $(Invoke-RestMethod -Uri "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1").Trim()
-    $scriptOnLocalDisk = Get-Content -Path $PSScriptRoot
+    $scriptOnLocalDisk = Get-Content -Path $($PSCommandPath)
 
     # Use Compare-Object to compare the contents of the two files
     $fileComparison = Compare-Object -ReferenceObject ($scriptOnGithub) -DifferenceObject ($scriptOnLocalDisk)
@@ -94,8 +102,13 @@ function Check-Updates {
     # Clear the screen before heading to the next functions
     Clear-Host
 
-    # Call the Set-DisplayMenu function and pass the starting directory from Main
-    Set-DisplayMenu
+    if ($updateAndRestartScriptBoolean -ne 1) {
+        # Call the Set-DisplayMenu function
+        Set-DisplayMenu
+    } else {
+        Write-Host "Exiting CommandCentral..."
+        Start-Sleep .75
+    }
 }
 
 # Function to display a menu and handle user input
