@@ -5,8 +5,7 @@ function Main {
     $tramscriptLogPath = Join-Path -Path $PSScriptRoot -ChildPath "\SystemD\Log\transcriptLog.txt"
     Start-Transcript $tramscriptLogPath
 
-    # Get the path of the current script and set the github repository location
-    $currentScriptPath = $PSCommandPath
+    # Set the github repository location
     $scriptGithubUri = "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1"
 
     # Clear the console
@@ -107,8 +106,9 @@ function Check-Updates {
         Set-DisplayMenu
     } else {
         Invoke-WebRequest -Uri $scriptGithubUri -OutFile $PSCommandPath
+        Start-Sleep .75
         Write-Host "Attempted to pull update, now opening script again..."
-        Start-Process powershell -ArgumentList "-File $($currentScriptPath)"
+        Start-Process powershell -ArgumentList "-File $($PSCommandPath)"
         Write-Host "Exiting CommandCentral..."
         Start-Sleep .75
     }
