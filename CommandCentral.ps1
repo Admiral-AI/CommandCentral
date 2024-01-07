@@ -72,7 +72,7 @@ function Check-Updates {
         Catch{Write-Host -ForegroundColor Red "Installation failed. Please install manually and run this tool again";exit}
     }#>
 
-    $scriptOnGithub = $(Invoke-RestMethod -Uri $scriptGithubUri).Trim()
+    $scriptOnGithub = $(Invoke-RestMethod -Uri $scriptGithubUri)
     $scriptOnLocalDisk = Get-Content -Path $($PSCommandPath) -Raw
 
     # Use Compare-Object to compare the contents of the two files
