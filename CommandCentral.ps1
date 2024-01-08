@@ -111,13 +111,13 @@ function Check-Updates {
         Invoke-WebRequest -Uri $scriptGithubUri -OutFile $PSCommandPath
         Write-Host "Attempted to pull update, now opening script again..."
         Start-Sleep 2
-        Start-Process powershell.exe -ArgumentList "-File `"$($scriptPath)`""
+        Start-Process powershell.exe -ArgumentList "-File `"$($PSCommandPath)`""
         Write-Host "Exiting CommandCentral..."
         Start-Sleep .75
     }
 }
 
-# Function to display a menu and handle user input
+# Function to display a menu and handle ur input
 function Set-DisplayMenu {
     <# Parameters from Main function
     param (
