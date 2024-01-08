@@ -135,14 +135,14 @@ function Set-DisplayMenu {
     Set-Location $workingDirectory
 
     $logoForMenu =  @"
-     _   _   _   _   _   _   _     _   _   _   _   _   _   _            
-    / \ / \ / \ / \ / \ / \ / \ | / \ / \ / \ / \ / \ / \ / \ 
-   ( C | o | m | m | a | n | d  |  C | e | n | t | r | a | l )
-    \_/ \_/ \_/ \_/ \_/ \_/ \_/ | \_/ \_/ \_/ \_/ \_/ \_/ \_/                                                             
-                                         By Admiral-AI
+      _   _   _   _   _   _   _     _   _   _   _   _   _   _            
+     / \ / \ / \ / \ / \ / \ / \ | / \ / \ / \ / \ / \ / \ / \ 
+    ( C | o | m | m | a | n | d  |  C | e | n | t | r | a | l )
+     \_/ \_/ \_/ \_/ \_/ \_/ \_/ | \_/ \_/ \_/ \_/ \_/ \_/ \_/                                                             
+                                          By Admiral-AI
 *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
          Making the simple complicated is commonplace;            
-Making the complicated simple, awesomely simple, that's creativity
+Making the complicated simple, awesomely simple, that's creativity!
 
 "@
 
