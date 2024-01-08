@@ -117,7 +117,7 @@ function Check-Updates {
     }
 }
 
-# Function to display a menu and handle ur input
+# Function to display a menu and handle user input
 function Set-DisplayMenu {
     <# Parameters from Main function
     param (
