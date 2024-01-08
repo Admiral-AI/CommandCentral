@@ -141,7 +141,7 @@ function Set-DisplayMenu {
      \_/ \_/ \_/ \_/ \_/ \_/ \_/ | \_/ \_/ \_/ \_/ \_/ \_/ \_/                                                             
                                           By Admiral-AI
 *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-         Making the simple complicated is commonplace;            
+           Making the simple complicated is commonplace;            
 Making the complicated simple, awesomely simple, that's creativity!
 
 "@
