@@ -72,7 +72,7 @@ function Check-Updates {
         Catch{Write-Host -ForegroundColor Red "Installation failed. Please install manually and run this tool again";exit}
     }#>
 
-    $scriptOnGithub = $(Invoke-RestMethod -Uri $scriptGithubUri).Trim()
+    $scriptOnGithub = $(Invoke-RestMethod -Uri $scriptGithubUri)
     $scriptOnLocalDisk = Get-Content -Path $($PSCommandPath) -Raw
 
     # Use Compare-Object to compare the contents of the two files
@@ -109,8 +109,8 @@ function Check-Updates {
         Set-DisplayMenu
     } else {
         Invoke-WebRequest -Uri $scriptGithubUri -OutFile $PSCommandPath
-        Start-Sleep .75
         Write-Host "Attempted to pull update, now opening script again..."
+        Start-Sleep 2
         Start-Process powershell.exe -ArgumentList "-File `"$($scriptPath)`""
         Write-Host "Exiting CommandCentral..."
         Start-Sleep .75
