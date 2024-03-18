@@ -5,12 +5,13 @@
         {
           "CommandCentral_Script_GitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1",
           "JSON_Settings_GitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/SystemD/Settings.json",
-          "Comments": "This property defines update locations for the scrip-t and supporting files"
+          "UpdateRetrievalLocation": "Local",        
+          "Comments": "This property defines update locations for the script and supporting files"
         }
       ],
-      "Log Paths": [
+      "Log_Paths": [
         {
-          "UserLog": "",
+          "CommandCentral_PSScript_Log": ".\\SystemD\\Logs\\CommandCentral_Runtime.log",
           "Comments": "This property defines log location settings"
         }
       ],
@@ -23,5 +24,11 @@
       "Placeholder": "Null",
       "comments": "This property defines user specific settings"
     }
+  ],
+  "CustomFunction_Settings": [
+    {
+      "Placeholder_AppUninstaller": "Null",
+      "Placeholder_Query4Information": "Null"
+    }   
   ]
 }
