@@ -1,0 +1,27 @@
+{
+  "Application_Settings": [
+    {
+      "Updates": [
+        {
+          "CommandCentral_Script_GitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1",
+          "JSON_Settings_GitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/SystemD/Settings.json",
+          "Comments": "This property defines update locations for the scrip-t and supporting files"
+        }
+      ],
+      "Log Paths": [
+        {
+          "UserLog": "",
+          "Comments": "This property defines log location settings"
+        }
+      ],
+      "Last_Updated": "03/18/2024",
+      "Comments": "This property defines global script settings"
+    }
+  ],
+  "User_Settings": [
+    {
+      "Placeholder": "Null",
+      "comments": "This property defines user specific settings"
+    }
+  ]
+}
