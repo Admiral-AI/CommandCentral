@@ -101,7 +101,7 @@ function Get-Updates {
 
     if ((Invoke-WebRequest $repoToPullFrom -DisableKeepAlive -UseBasicParsing -Method Head).StatusDescription -eq "OK") {
         $scriptLocationType = "WebURL"
-        $scriptPulledfromRepo = $(Invoke-RestMethod -Uri $scriptGithubUri)
+        $scriptPulledfromRepo = $(Invoke-RestMethod -Uri $repoToPullFrom)
     } elseif ((Test-Path $repoToPullFrom) -eq $true) {
         $scriptLocationType = "FilePath"
         $scriptPulledfromRepo = Get-Content -Path $($repoToPullFrom) -Raw
@@ -149,7 +149,7 @@ function Get-Updates {
 
     } else {
         
-        $scriptPulledfromRepo | Out-File -FilePath $($PSCommandPath) -Raw
+        $scriptPulledfromRepo | Out-File -FilePath $($PSCommandPath)
 
         Write-Host "Attempted to write updates, now opening script again..."
         Start-Sleep 2
