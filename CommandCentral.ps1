@@ -159,9 +159,9 @@ function Set-DisplayMenu {
     # Define the directories where the PowerShell scripts, 'menus', and settings are located
     $rootScriptDirectory = $PSScriptroot
     $systemDDirectory = Join-Path -Path $PSScriptroot -ChildPath $settingsJSON.Application_Settings.SystemD_Path
-    
-    # Set the working directory to the location of the 'Functions' directory
     $functionsDirectory = Join-Path -Path $rootScriptDirectory -ChildPath $settingsJSON.Application_Settings.Functions_Path
+
+    # Set the starting directory to the location of the 'Functions' directory
     $startingDirectory = $functionsDirectory
     Set-Location $functionsDirectory
 
