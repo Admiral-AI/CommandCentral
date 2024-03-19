@@ -100,10 +100,8 @@ function Get-Updates {
     }
 
     if ((Invoke-WebRequest $repoToPullFrom -DisableKeepAlive -UseBasicParsing -Method Head).StatusDescription -eq "OK") {
-        $scriptLocationType = "WebURL"
         $scriptPulledfromRepo = $(Invoke-RestMethod -Uri $repoToPullFrom)
     } elseif ((Test-Path $repoToPullFrom) -eq $true) {
-        $scriptLocationType = "FilePath"
         $scriptPulledfromRepo = Get-Content -Path $($repoToPullFrom) -Raw
     } else {
         Write-Host "General failure when pulling information from repository, please re-run script again or redownload the files."
@@ -149,7 +147,7 @@ function Get-Updates {
 
     } else {
         
-        $scriptPulledfromRepo | Out-File -FilePath $($PSCommandPath)
+        $scriptPulledfromRepo | Out-File -FilePath $($PSCommandPath) -NoNewline
 
         Write-Host "Attempted to write updates, now opening script again..."
         Start-Sleep 2
