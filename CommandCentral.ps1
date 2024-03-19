@@ -72,21 +72,47 @@ function Get-UserCredentials {
 function Get-Updates {
     
     #Need to add check for RSAT install
-    <#if($null -eq (Get-Module -ListAvailable -Name ActiveDirectory))
-    {
-        Write-Host -ForegroundColor Red "Remote Server Administration Tools isn't installed!"
-        Try{
-            Start-Process powershell -Verb runas -PassThru -ArgumentList `
-            "'Installing RSAT...'; Get-WindowsCapability -Name RSAT.ActiveDirectory* -Online | Add-WindowsCapability -Online; Read-Host 'Please reboot your computer to complete installation'"
-            }
-        Catch{Write-Host -ForegroundColor Red "Installation failed. Please install manually and run this tool again";exit}
-    }#>
+    <#
+    # Get the CIM_ComputerSystem CIM class and set variable to global
+    $computerSystem = Get-CimInstance Win32_ComputerSystem
 
-    $scriptOnGithub = $(Invoke-RestMethod -Uri $scriptGithubUri)
+    # Check if the domain property is not empty
+    if ($computerSystem.PartofDomain -eq $true) {
+        if($null -eq (Get-Module -ListAvailable -Name ActiveDirectory))
+        {
+            Write-Host -ForegroundColor Red "Remote Server Administration Tools isn't installed!"
+            Try{
+                Start-Process powershell -Verb runas -PassThru -ArgumentList `
+                "'Installing RSAT...'; Get-WindowsCapability -Name RSAT.ActiveDirectory* -Online | Add-WindowsCapability -Online; Read-Host 'Please reboot your computer to complete installation'"
+                }
+            Catch{Write-Host -ForegroundColor Red "Installation failed. Please install manually and run this tool again";exit}
+        }
+    }
+    #>
+
+    $providedJSONUpdateLocation = $settingsJSON.Application_Settings.Updates.UpdateRetrievalLocation
+
+    switch ($providedJSONUpdateLocation) {
+        "Main_Repo" {$repoToPullFrom = $settingsJSON.Application_Settings.Updates.Main_Repo.CommandCentral_Script_mainGitRepo ; break}
+        "Dev_Repo" {$repoToPullFrom = $settingsJSON.Application_Settings.Updates.Dev_Repo.CommandCentral_Script_devGitRepo ; break}
+        "Local_Repo" {$repoToPullFrom = $settingsJSON.Application_Settings.Updates.Local_Repo.CommandCentral_Script_localRepo ; break}
+    }
+
+    if ((Invoke-WebRequest $repoToPullFrom -DisableKeepAlive -UseBasicParsing -Method Head).StatusDescription -eq "OK") {
+        $scriptPulledfromRepo = $(Invoke-RestMethod -Uri $scriptGithubUri)
+    } elseif (Test-Path $repoToPullFrom -eq $true) {
+        $scriptPulledfromRepo = Get-Content -Path $($repoToPullFrom) -Raw
+    } else {
+        Write-Host "General failure when pulling information from repository, please re-run script again or redownload the files."
+        if ($repoToPullFrom -eq "Local_Repo") {
+            Write-Host "Alternatively contact your administrator since this is a locally run repository"
+        }
+    }
+
     $scriptOnLocalDisk = Get-Content -Path $($PSCommandPath) -Raw
 
     # Use Compare-Object to compare the contents of the two files
-    $fileComparison = Compare-Object -ReferenceObject ($scriptOnGithub) -DifferenceObject ($scriptOnLocalDisk)
+    $fileComparison = Compare-Object -ReferenceObject ($scriptPulledfromRepo) -DifferenceObject ($scriptOnLocalDisk)
 
     # Check the result
     if ($fileComparison.Count -eq 0) {
