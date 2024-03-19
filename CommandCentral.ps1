@@ -22,7 +22,7 @@ function Main {
     Clear-Host
 
     # Start the domino effect of functions
-    Get-UserCredentials
+    Get-Updates
 
     # Reset location before exiting, prevents errors when runnning in same terminal
     Set-Location $PSScriptRoot
@@ -62,8 +62,7 @@ function Get-UserCredentials {
     # Clear the screen before heading to the next functions
     Clear-Host
 
-    # Call the Get-Updates function
-    #Get-Updates
+    # Call the menu function
     Set-DisplayMenu
 
 }
@@ -144,7 +143,8 @@ function Get-Updates {
         Clear-Host
         
         # Call the Set-DisplayMenu function
-        Set-DisplayMenu
+        Get-UserCredentials
+
     } else {
         
         $scriptPulledfromRepo | Out-File -FilePath $($PSCommandPath) -Raw
