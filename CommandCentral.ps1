@@ -100,7 +100,7 @@ function Get-Updates {
     if ((Invoke-WebRequest $repoToPullFrom -DisableKeepAlive -UseBasicParsing -Method Head).StatusDescription -eq "OK") {
         $scriptLocationType = "WebURL"
         $scriptPulledfromRepo = $(Invoke-RestMethod -Uri $scriptGithubUri)
-    } elseif (Test-Path $repoToPullFrom -eq $true) {
+    } elseif ((Test-Path $repoToPullFrom) -eq $true) {
         $scriptLocationType = "FilePath"
         $scriptPulledfromRepo = Get-Content -Path $($repoToPullFrom) -Raw
     } else {
