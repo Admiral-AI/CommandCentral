@@ -3,9 +3,19 @@
     {
       "Updates": [
         {
-          "CommandCentral_Script_GitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1",
-          "JSON_Settings_GitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/SystemD/Settings.json",
-          "UpdateRetrievalLocation": "Local",        
+          "Main_Repo": {
+            "CommandCentral_Script_mainGitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1",
+            "JSON_Settings_mainGitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/SystemD/Settings.json"
+          },
+          "Dev_Repo": {
+            "CommandCentral_Script_devGitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/dev/CommandCentral.ps1",
+            "JSON_Settings_devGitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/SystemD/Settings.json"  
+          },
+          "Local_Repo": {
+            "CommandCentral_Script_localRepo": "https://github.com/Admiral-AI/CommandCentral/raw/dev/CommandCentral.ps1",
+            "JSON_Settings_localRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/SystemD/Settings.json"
+          },
+          "UpdateRetrievalLocation": "Main_Repo",
           "Comments": "This property defines update locations for the script and supporting files"
         }
       ],
@@ -21,14 +31,14 @@
   ],
   "User_Settings": [
     {
-      "Placeholder": "Null",
+      "Placeholder": null,
       "comments": "This property defines user specific settings"
     }
   ],
   "CustomFunction_Settings": [
     {
-      "Placeholder_AppUninstaller": "Null",
-      "Placeholder_Query4Information": "Null"
+      "Placeholder_AppUninstaller": null,
+      "Placeholder_Query4Information": null
     }   
   ]
 }
