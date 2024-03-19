@@ -1,33 +1,42 @@
+# Junk?:
+<#
+param (
+    [string]$startingDirectory
+)
+#>
+
 # Main function
 function Main {
-    
-    # testing Updates using this line
+
+    Set-Location $PSScriptRoot
+
+    # Import settings file and set the variable to global access (indicates that all scripts within the current PowerShell session can access it)
+    Set-Variable $Global:settingsJSON
+    $settingsJSON = Get-Content .\SystemD\Settings.json
+    $settingsJSON = $settingsJSON | ConvertFrom-Json
 
     # Set transcript log path based on 
-    $tramscriptLogPath = Join-Path -Path $PSScriptRoot -ChildPath "\SystemD\Log\transcriptLog.txt"
-    Start-Transcript $tramscriptLogPath
-
-    # Set the github repository location
-    $scriptGithubUri = "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1"
+    Start-Transcript $settingsJSON.Application_Settings.Log_Paths.CommandCentral_PSScript_Log -Append -Force
 
     # Clear the console
     Clear-Host
 
+    # Start the domino effect of functions
     Get-UserCredentials
 
+    # Reset location before exiting, prevents errors when runnning in same terminal
+    Set-Location $PSScriptRoot
+
+    # Stop Transcript when finished with script
     Stop-Transcript
 }
 
 # Function to get user credentials
 function Get-UserCredentials {
-    <#
-    param (
-        [string]$startingDirectory
-    )
-    #>
     
     # Get the CIM_ComputerSystem CIM class
     $computerSystem = Get-CimInstance Win32_ComputerSystem
+
     # Check if the domain property is not empty
     if ($computerSystem.PartofDomain -eq $true) {
         Write-Host "Computer is in a domain: $($computerSystem.Domain)"
@@ -47,19 +56,20 @@ function Get-UserCredentials {
 
     } else {
         Write-Host "Computer is in a workgroup, credentials are assumed to not be needed (administrator running script)"
-        Sleep 2
+        Start-Sleep 2
     }
 
     # Clear the screen before heading to the next functions
     Clear-Host
 
-    # Call the Check-Updates function
-    Check-Updates
+    # Call the Get-Updates function
+    #Get-Updates
+    Set-DisplayMenu
 
 }
 
 # Function to check for module and script updates
-function Check-Updates {
+function Get-Updates {
     
     #Need to add check for RSAT install
     <#if($null -eq (Get-Module -ListAvailable -Name ActiveDirectory))
@@ -119,45 +129,29 @@ function Check-Updates {
 
 # Function to display a menu and handle user input
 function Set-DisplayMenu {
-    <# Parameters from Main function
-    param (
-        [string]$startingDirectory
-    )
-    #>
 
-    # Define the directory where the PowerShell scripts and 'menus' are located
-    $functionDirectory = "Functions"
-    # Combine the root directory with the script directory
-    $startingDirectory = Join-Path $PSScriptRoot $functionDirectory
+    # Define the directories where the PowerShell scripts, 'menus', and settings are located
+    $startingDirectory = $PSScriptRoot
+    $systemDDirectory = Join-Path -Path $PSScriptroot -ChildPath $settingsJSON.Application_Settings.SystemD_Path
     
-    # Set the working directory to the starting directory
-    $workingDirectory = $startingDirectory
+    # Set the working directory to the location of the 'Functions' directory
+    $workingDirectory = Join-Path -Path $startingDirectory -ChildPath $settingsJSON.Application_Settings.Functions_Path
     Set-Location $workingDirectory
 
-    $logoForMenu =  @"
-      _   _   _   _   _   _   _     _   _   _   _   _   _   _            
-     / \ / \ / \ / \ / \ / \ / \ | / \ / \ / \ / \ / \ / \ / \ 
-    ( C | o | m | m | a | n | d  |  C | e | n | t | r | a | l )
-     \_/ \_/ \_/ \_/ \_/ \_/ \_/ | \_/ \_/ \_/ \_/ \_/ \_/ \_/                                                             
-                                          By Admiral-AI
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-           Making the simple complicated is commonplace;            
-Making the complicated simple, awesomely simple, that's creativity!
+    # Using SystemD location setting, pull logo file
+    $logoFileLocation = Join-Path -Path $($systemDDirectory) -ChildPath \Logo.txt
+    $logoForMenu = Get-Content $logoFileLocation -Raw
 
-"@
-
-    # Loop until the user chooses to quit
+    # Loop to display menus until the user chooses to quit
     while ($userChoice -ne 'quit') {
 
         Write-Host $logoForMenu -ForegroundColor DarkYellow
 
-        # Check if the starting and working directories match
+        # Check if the starting and working directories match and provide option to quit accordingly
         if ($startingDirectory -eq $workingDirectory) {
             $optionToQuit = 1
-            # Debug: Provide information about the option to quit
         } else {
             $optionToQuit = 0
-            # Debug: Provide information about the option to go back one directory
         }
 
         # List .ps1 files in the working directory
