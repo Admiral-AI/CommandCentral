@@ -99,8 +99,10 @@ function Get-Updates {
     }
 
     if ((Invoke-WebRequest $repoToPullFrom -DisableKeepAlive -UseBasicParsing -Method Head).StatusDescription -eq "OK") {
+        $scriptLocationType = "WebURL"
         $scriptPulledfromRepo = $(Invoke-RestMethod -Uri $scriptGithubUri)
     } elseif (Test-Path $repoToPullFrom -eq $true) {
+        $scriptLocationType = "FilePath"
         $scriptPulledfromRepo = Get-Content -Path $($repoToPullFrom) -Raw
     } else {
         Write-Host "General failure when pulling information from repository, please re-run script again or redownload the files."
@@ -144,12 +146,15 @@ function Get-Updates {
         # Call the Set-DisplayMenu function
         Set-DisplayMenu
     } else {
-        Invoke-WebRequest -Uri $scriptGithubUri -OutFile $PSCommandPath
-        Write-Host "Attempted to pull update, now opening script again..."
+        
+        $scriptPulledfromRepo | Out-File -FilePath $($PSCommandPath) -Raw
+
+        Write-Host "Attempted to write updates, now opening script again..."
         Start-Sleep 2
         Start-Process powershell.exe -ArgumentList "-File `"$($PSCommandPath)`""
         Write-Host "Exiting CommandCentral..."
         Start-Sleep .75
+
     }
 }
 
