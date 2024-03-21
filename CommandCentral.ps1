@@ -13,7 +13,7 @@ function Main {
     Set-Location $PSScriptRoot
 
     # Import settings file and set the variable to global access (indicates that all scripts within the current PowerShell session can access it)
-    Set-Variable $Global:settingsJSON
+    Set-Variable -Name settingsJSON -Scope global
     $settingsJSON = Get-Content .\SystemD\Settings.json
     $settingsJSON = $settingsJSON | ConvertFrom-Json
 
@@ -23,8 +23,14 @@ function Main {
     # Clear the console
     Clear-Host
 
-    # Start the domino effect of functions
-    Get-Updates
+    # Start the domino effect of functions based on setting file update parameter
+    if (($settingsJSON.Application_Settings.Updates.UpdatesOptIn) -eq $true) {
+        Get-Updates
+    } elseif (($settingsJSON.Application_Settings.Updates.UpdatesOptIn) -eq $false) {
+        Get-UserCredentials
+    } else {
+        Write-Host "Setting file is unreadable or missing the update opt in parameter, please re-download or fix your setting file"
+    }
 
     # Reset location before exiting, prevents errors when runnning in same terminal
     Set-Location $PSScriptRoot
@@ -35,6 +41,10 @@ function Main {
 
 # Function to get user credentials
 function Get-UserCredentials {
+
+    # Set the userCredArray variable to global to allow all scripts that are run within this powershell session to access the credentials
+    Set-Variable -Name userCredArray -Scope global
+    $userCredArray = @()
     
     # Get the CIM_ComputerSystem CIM class
     $computerSystem = Get-CimInstance Win32_ComputerSystem
@@ -51,15 +61,76 @@ function Get-UserCredentials {
             $userCred = Get-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)"
             
             if ($null -eq $userCred) {
-                 $userCred = Get-Credential -UserName "$($Env:UserDomain)\$($accountToQuery.SamAccountName)" -Message "Please provide your credentials for the following account: $($Env:UserDomain)\$($accountToQuery.SamAccountName)"
-                 New-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)" -Credential $userCred -Persist ENTERPRISE
-            }
-        }
 
+                # Set loop counter and exit values
+                $loopCounter_userCredCheck = 0
+                $loopControl_userCredCheck = $true
+                
+                # Begin loop to check credential validity
+                while ($loopControl_userCredCheck) {
+                    
+                    if ($loopCounter_userCredCheck -ge 3) {
+                        Write-Warning -Message ("Take a deep breath and perhaps a break. You have entered your password $($loopCounter_userCredCheck) times incorrectly")
+                        Write-Host "We will now take a 30 second break to slow down"
+                        Start-Sleep -Seconds 30
+                    }
+            
+                    # Collect the username and password and store in credential object.
+                    $userCred = Get-Credential -UserName "$($Env:UserDomain)\$($accountToQuery.SamAccountName)" -Message "Please provide your credentials for the following account: $($Env:UserDomain)\$($accountToQuery.SamAccountName)"
+
+                    try {
+                        # Build the current domain
+                        $currentDomain = "LDAP://$($userCred.GetNetworkCredential().Domain)"
+            
+                        # Get the user\password. The GetNetworkCredential only works for the passwrod because the current user
+                        # is the one who entered it.  Shouldn't be accessible to anything\one else.
+                        $userName = $userCred.GetNetworkCredential().UserName
+                        $password = $userCred.GetNetworkCredential().Password
+                    } catch {
+                        Write-Warning -Message ("There was a problem with what you entered: $($_.exception.message)")
+                        continue
+                    }
+            
+                    # Do a quick query against the domain to authenticate the user.
+                    $domainQuery = New-Object System.DirectoryServices.DirectoryEntry($currentDomain,$userName,$password)
+                    # If we get a result back with a name property then we're good to go and we can store the credential.
+                    if ($domainQuery.name) {
+                        Write-Host "Credential for: $($userCred.Username) was succesfully validated! Adding to storage..."
+                        $userCred = New-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)" -Credential $userCred -Persist ENTERPRISE
+                        $userCred = Get-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)"
+                        $userCredArray += $userCred
+
+                        $loopControl_userCredCheck = $false
+                        Remove-Variable password -Force
+                    } else {
+                        $loopCounter_userCredCheck++
+                        Write-Warning -Message ("The password you entered for $($userName) was incorrect.  Attempt(s) $($loopCounter_userCredCheck). Please try again.")
+                    }
+                
+                }
+            } elseif ($userCred) {
+
+                $userCredArray += $userCred
+
+            } else {
+
+                Write-Host "Something happened...try restarting the script, redownload, or contact you administrator"
+                Start-Sleep 5
+
+            }
+
+            # Clear variable to ensure it can't be misused or run into errors
+            Clear-Variable -Name userCred -Force
+
+        }
     } else {
+
         Write-Host "Computer is in a workgroup, credentials are assumed to not be needed (administrator running script)"
         Start-Sleep 2
+
     }
+
+    Write-Host "Finished credential validation, proceeding to menu..."
 
     # Clear the screen before heading to the next functions
     Clear-Host
@@ -131,18 +202,20 @@ function Get-Updates {
 
         foreach ($module in $moduleList) {
             if (Get-Module -ListAvailable -Name $module) {
-                Write-Host "Module: $($module) exists"
+                Write-Host "Module: $($module) exists, no need to import or install"
             } 
             else {
                 Write-Host "Module: $($module) does not exist. Installing..."
                 Install-Module -Name $module -Scope CurrentUser -Force
+                Write-Host "Importing $($module) module..."
+                Import-Module -Name $module -Force
             }
         }
         
         # Clear the screen before heading to the next functions
         Clear-Host
         
-        # Call the Set-DisplayMenu function
+        # Call the Get-UserCredentials function
         Get-UserCredentials
 
     } else {
