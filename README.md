@@ -1,4 +1,4 @@
-# Command Central
+# CommandCentral
 CommandCentral is a versatile PowerShell tool designed to streamline various administrative tasks with menu-driven navigation and built-in credential stores. This README provides an overview of the tool's functionality and how to use it effectively.
 
 ## <------ Table of Contents ------>
