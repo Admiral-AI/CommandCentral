@@ -1,8 +1,6 @@
 {
-  "Application_Settings": [
-    {
-      "Updates": [
-        {
+  "Application_Settings": {
+      "Updates": {
           "Main_Repo": {
             "CommandCentral_Script_mainGitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/CommandCentral.ps1",
             "JSON_Settings_mainGitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/SystemD/Settings.json"
@@ -12,33 +10,28 @@
             "JSON_Settings_devGitRepo": "https://github.com/Admiral-AI/CommandCentral/raw/main/SystemD/Settings.json"  
           },
           "Local_Repo": {
-            "CommandCentral_Script_localRepo": ".\\Temp\\CommandCentral\\CommandCentral.ps1",
-            "JSON_Settings_localRepo": ".\\Temp\\CommandCentral\\SystemD\\Settings.json"
+            "CommandCentral_Script_localRepo": "C:\\Temp\\CommandCentral\\CommandCentral.ps1",
+            "JSON_Settings_localRepo": "C:\\Temp\\CommandCentral\\SystemD\\Settings.json"
           },
-          "UpdateRetrievalLocation": "Main_Repo",
+          "UpdateRetrievalLocation": "Local_Repo",
+          "UpdatesOptIn": false,
           "Comments": "This property defines update locations for the script and supporting files"
-        }
-      ],
-      "Log_Paths": [
-        {
+        },
+      "Log_Paths": {
           "CommandCentral_PSScript_Log": ".\\SystemD\\Logs\\CommandCentral_Runtime.log",
           "Comments": "This property defines log location settings"
-        }
-      ],
-      "Last_Updated": null,
+        },
+      "Functions_Path": "\\Functions",
+      "SystemD_Path": "\\SystemD",
+      "Last_Updated": "03/18/2024",
       "Comments": "This property defines global script settings"
-    }
-  ],
-  "User_Settings": [
-    {
+    },
+  "User_Settings": {
       "Placeholder": null,
       "comments": "This property defines user specific settings"
-    }
-  ],
-  "CustomFunction_Settings": [
-    {
+    },
+  "CustomFunction_Settings": {
       "Placeholder_AppUninstaller": null,
       "Placeholder_Query4Information": null
-    }   
-  ]
+    }
 }
