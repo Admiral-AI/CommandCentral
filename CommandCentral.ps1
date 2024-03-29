@@ -12,8 +12,8 @@ function Main {
 
     Set-Location $PSScriptRoot
 
-    # Import settings file and set the variable to global access (indicates that all scripts within the current PowerShell session can access it)
-    Set-Variable -Name settingsJSON -Scope global
+    # Import settings file and set the variable to script access (indicates that all scripts run from this one can access the variable when passed)
+    Set-Variable -Name settingsJSON -Scope script
     $settingsJSON = Get-Content .\SystemD\Settings.json
     $settingsJSON = $settingsJSON | ConvertFrom-Json
 
@@ -42,8 +42,8 @@ function Main {
 # Function to get user credentials
 function Get-UserCredentials {
 
-    # Set the userCredArray variable to global to allow all scripts that are run within this powershell session to access the credentials
-    Set-Variable -Name userCredArray -Scope global
+    # Set the userCredArray variable to script to allow all scripts that are run from this script to access the credentials when passed
+    Set-Variable -Name userCredArray -Scope script
     $userCredArray = @()
     
     # Get the CIM_ComputerSystem CIM class
@@ -143,12 +143,11 @@ function Get-UserCredentials {
 # Function to check for module and script updates
 function Get-Updates {
     
-    #Need to add check for RSAT install
-    <#
     # Get the CIM_ComputerSystem CIM class and set variable to global
     $computerSystem = Get-CimInstance Win32_ComputerSystem
 
-    # Check if the domain property is not empty
+    <# Need to add check for RSAT install
+     Check if the domain property is not empty
     if ($computerSystem.PartofDomain -eq $true) {
         if($null -eq (Get-Module -ListAvailable -Name ActiveDirectory))
         {
@@ -161,6 +160,7 @@ function Get-Updates {
         }
     }
     #>
+    
 
     $providedJSONUpdateLocation = $settingsJSON.Application_Settings.Updates.UpdateRetrievalLocation
 
