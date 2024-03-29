@@ -142,11 +142,11 @@ function Get-UserCredentials {
 
 # Function to check for module and script updates
 function Get-Updates {
-    
+
+    <# Need to add check for RSAT install
     # Get the CIM_ComputerSystem CIM class and set variable to global
     $computerSystem = Get-CimInstance Win32_ComputerSystem
 
-    <# Need to add check for RSAT install
      Check if the domain property is not empty
     if ($computerSystem.PartofDomain -eq $true) {
         if($null -eq (Get-Module -ListAvailable -Name ActiveDirectory))
