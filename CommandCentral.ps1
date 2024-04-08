@@ -1,11 +1,13 @@
-# Junk?:
 <#
-param (
-    [string]$startingDirectory
-)
-#>
+.DESCRIPTION
+  Provides a easy to use and customizable menu to launch scripts with shared parameters (i.e. passwords)
 
-#Test updates based on this line
+.NOTES
+  Version:        1.0
+  Author:         Admiral-AI
+  Portfolio:      https://github.com/Admiral-AI
+  Creation Date:  January 4, 2024
+#>
 
 # Main function
 function Main {
