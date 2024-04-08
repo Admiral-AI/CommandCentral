@@ -314,6 +314,12 @@ function Get-Updates {
 # Function to display a menu and handle user input
 function Set-DisplayMenu {
 
+    # Package important variables in a hashtable in preparation to pass to scripts
+    $CC_MenuHashTable = @{
+        UserCredArray = $userCredArray
+        SettingsJSON = $settingsJSON
+    }
+
     # Define the directories where the PowerShell scripts, 'menus', and settings are located
     $rootScriptDirectory = $PSScriptroot
     $systemDDirectory = Join-Path -Path $PSScriptroot -ChildPath $settingsJSON.Application_Settings.SystemD_Path
@@ -382,8 +388,8 @@ function Set-DisplayMenu {
             Write-Host "Running script: $($ps1Options[$userChoice - 1])" -ForegroundColor Green
             Start-Sleep .75
             Unblock-File $scriptPath
-        
-            . $scriptPath
+            . $scriptPath -CC_MenuHashTable $CC_MenuHashTable
+            
         } elseif ($userChoice -le ($ps1Options.Count + $subOptions.Count)) {
             # Enter the selected subdirectory
             $selectedDir = $subdirectories[$userChoice - $ps1Options.Count - 1]
