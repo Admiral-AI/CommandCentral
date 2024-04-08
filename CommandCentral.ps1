@@ -194,7 +194,7 @@ function Get-UserCredentials {
 
             } else {
 
-                Write-Host "Something happened...try restarting the script, redownload, or contact you administrator"
+                Write-Host "Something happened...try restarting the script, redownload, or contact your administrator"
                 Start-Sleep 5
 
             }
