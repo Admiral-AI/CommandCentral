@@ -317,7 +317,7 @@ function Get-Updates {
 function Set-DisplayMenu {
 
     # Package important variables in a hashtable in preparation to pass to scripts
-    $CC_MenuHashTable = @{
+    $CC_MainMenu_HashTable = @{
         UserCredArray = $userCredArray
         SettingsJSON = $settingsJSON
     }
@@ -390,7 +390,7 @@ function Set-DisplayMenu {
             Write-Host "Running script: $($ps1Options[$userChoice - 1])" -ForegroundColor Green
             Start-Sleep .75
             Unblock-File $scriptPath
-            . $scriptPath -CC_MenuHashTable $CC_MenuHashTable
+            . $scriptPath -CC_MainMenu_HashTable $CC_MainMenu_HashTable
             
         } elseif ($userChoice -le ($ps1Options.Count + $subOptions.Count)) {
             # Enter the selected subdirectory
