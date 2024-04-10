@@ -75,7 +75,7 @@ function Get-UserCredentials {
         param (
             [Parameter(Mandatory=$true)] [pscredential] $userCred,
             [Parameter(Mandatory=$true)] [Object[]] $accountToQuery,
-            [Parameter(Mandatory=$true)] [AllowEmptyCollection()] [array] $userCredArray
+            [Parameter(Mandatory=$true)] [AllowEmptyCollection()] [hashtable] $userCreds_HashTable
         )
 
         try {
@@ -98,7 +98,7 @@ function Get-UserCredentials {
             Write-Host "Credential for: $($userCred.Username) was succesfully validated! Adding to storage..."
             New-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)" -Credential $userCred -Persist ENTERPRISE
             $userCred = Get-StoredCredential -Target "CommandCentral-$($accountToQuery.SamAccountName)"
-            $userCredArray += $userCred
+            $userCreds_HashTable[$userCred.UserName] = $userCred
 
             $loopControl_userCredCheck = $false
             $loopCounter_userCredCheck = 0
@@ -109,7 +109,7 @@ function Get-UserCredentials {
         }
 
         $validationFunction_ReturnHashtable = @{
-            UserCredArray = $userCredArray
+            UserCreds_HashTable = $userCreds_HashTable
             LoopCounter_UserCredCheck = $loopCounter_userCredCheck
             LoopControl_UserCredCheck = $loopControl_userCredCheck
         }
@@ -118,9 +118,9 @@ function Get-UserCredentials {
 
     }
 
-    # Set the userCredArray variable to script to allow all scripts that are run from this script to access the credentials when passed
-    Set-Variable -Name userCredArray -Scope script
-    $userCredArray = @()
+    # Set the UserCreds_HashTable variable to script to allow all scripts that are run from this script to access the credentials when passed
+    Set-Variable -Name UserCreds_HashTable -Scope script
+    $userCreds_HashTable = @{}
 
     # Get the CIM_ComputerSystem CIM class
     $computerSystem = Get-CimInstance Win32_ComputerSystem
@@ -159,22 +159,22 @@ function Get-UserCredentials {
 
                     $userCred = Prompt_UserCredentials -accountToQuery $accountToQuery
 
-                    $validationFunction_ReturnHashtable = Validate_UserCredentials -userCred $userCred -accountToQuery $accountToQuery -userCredArray $userCredArray
+                    $validationFunction_ReturnHashtable = Validate_UserCredentials -userCred $userCred -accountToQuery $accountToQuery -UserCreds_HashTable $userCreds_HashTable
 
                     $loopCounter_userCredCheck = $validationFunction_ReturnHashtable.LoopCounter_UserCredCheck
                     $loopControl_userCredCheck = $validationFunction_ReturnHashtable.LoopControl_UserCredCheck
-                    $userCredArray = $validationFunction_ReturnHashtable.UserCredArray
+                    $userCreds_HashTable = $validationFunction_ReturnHashtable.UserCreds_HashTable
                     
                 }
 
             } elseif ($null -ne $userCred) {
 
                 # One time credential check since credentials are stored, if they are good then the while block should be skipped
-                $validationFunction_ReturnHashtable = Validate_UserCredentials -userCred $userCred -accountToQuery $accountToQuery -userCredArray $userCredArray
+                $validationFunction_ReturnHashtable = Validate_UserCredentials -userCred $userCred -accountToQuery $accountToQuery -UserCreds_HashTable $userCreds_HashTable
 
                 $loopCounter_userCredCheck = $validationFunction_ReturnHashtable.LoopCounter_UserCredCheck
                 $loopControl_userCredCheck = $validationFunction_ReturnHashtable.LoopControl_UserCredCheck
-                $userCredArray = $validationFunction_ReturnHashtable.UserCredArray
+                $userCreds_HashTable = $validationFunction_ReturnHashtable.UserCreds_HashTable
 
                 while ($loopControl_userCredCheck -eq $true) {
 
@@ -186,11 +186,11 @@ function Get-UserCredentials {
 
                     $userCred = Prompt_UserCredentials -accountToQuery $accountToQuery
 
-                    $validationFunction_ReturnHashtable = Validate_UserCredentials -userCred $userCred -accountToQuery $accountToQuery -userCredArray $userCredArray
+                    $validationFunction_ReturnHashtable = Validate_UserCredentials -userCred $userCred -accountToQuery $accountToQuery -UserCreds_HashTable $userCreds_HashTable
 
                     $loopCounter_userCredCheck = $validationFunction_ReturnHashtable.LoopCounter_UserCredCheck
                     $loopControl_userCredCheck = $validationFunction_ReturnHashtable.LoopControl_UserCredCheck
-                    $userCredArray = $validationFunction_ReturnHashtable.UserCredArray
+                    $userCreds_HashTable = $validationFunction_ReturnHashtable.UserCreds_HashTable
                     
                 }
 
@@ -318,7 +318,8 @@ function Set-DisplayMenu {
 
     # Package important variables in a hashtable in preparation to pass to scripts
     $CC_MainMenu_HashTable = @{
-        UserCredArray = $userCredArray
+        CCScriptRoot = $($PSScriptRoot)
+        UserCreds_HashTable = $userCreds_HashTable
         SettingsJSON = $settingsJSON
     }
 
