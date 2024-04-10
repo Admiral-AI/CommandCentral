@@ -11,8 +11,8 @@
 
 # Input parameters for script
 param (
-    [Parameter(Mandatory=$false)] [switch] $multiInput,
-    [Parameter(Mandatory=$false)] [switch] $inputRetrievalSpecifications,
+    [Parameter(Mandatory=$false)] [bool] $multiInput,
+    [Parameter(Mandatory=$false)] [string] $inputRetrievalSpecifications,
     [Parameter(Mandatory=$true)] [hashtable] $CC_MainMenu_HashTable
 )
 
