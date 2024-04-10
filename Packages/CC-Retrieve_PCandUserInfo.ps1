@@ -25,20 +25,20 @@ function Main {
 
     # Make sure $multiInput is set to a value (not common) and if not set it manually
     if ($multiInput -ne $false) {
-        Write-Host "The multi input variable was passed into the script with a value of: $($multiInput)"
+        Write-Debug "The multi input variable was passed into the script with a value of: $($multiInput)"
     } else {
         $multiInput = $false
     
-        Write-Host "The multi input variable was not passed into the script. The value was set to: $($multiInput)"
+        Write-Debug "The multi input variable was not passed into the script. The value was set to: $($multiInput)"
     }
 
     # Make sure $inputRetrievalSpecifications is set to a value (not common) and if not set it manually
     if ($inputRetrievalSpecifications -ne $false) {
-        Write-Host "The input specification variable was passed into the script with a value of: $($inputRetrievalSpecifications)"
+        Write-Debug "The input specification variable was passed into the script with a value of: $($inputRetrievalSpecifications)"
     } else {
         $inputRetrievalSpecifications = "PC_plus_User"
     
-        Write-Host "The input specification variable was not passed into the script. The value was manually set to: $($inputRetrievalSpecifications)"
+        Write-Debug "The input specification variable was not passed into the script. The value was manually set to: $($inputRetrievalSpecifications)"
     }
 
     switch ($inputRetrievalSpecifications) {
@@ -64,7 +64,7 @@ function Main {
         Default { 
             Write-Host "Something went wrong during set up, please restart or contact your administrator"
         
-            Write-Information "Check variables, switch statement for `$inputRetrievalSpecifications went into default"
+            Write-Debug "Check variables, switch statement for `$inputRetrievalSpecifications went into default"
         }
         
     }
