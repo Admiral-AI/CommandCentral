@@ -19,7 +19,10 @@ param (
 function Main {
     # First: Clear the junk off the console
     Clear-Host
-    
+
+    # Clear the Retrieved_Inputs index of the MainMenu hashtable for error-free operation
+    $CC_MainMenu_HashTable["Retrieved_Inputs"] = @{}
+
     # Make sure $multiInput is set to a value (not common) and if not set it manually
     if ($multiInput -ne $false) {
         Write-Host "The multi input variable was passed into the script with a value of: $($multiInput)"
@@ -66,7 +69,7 @@ function Main {
         
     }
     
-    $CC_MainMenu_HashTable["Retrieved_Inpupts"] = @{
+    $CC_MainMenu_HashTable["Retrieved_Inputs"] = @{
         UserNames = $retrievedUserNames
         ComputerNames = $retrievedComputerNames
     }
