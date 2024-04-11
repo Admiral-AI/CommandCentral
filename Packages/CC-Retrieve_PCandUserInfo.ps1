@@ -38,7 +38,7 @@ function Get_UserInput {
         if ($multiInput -eq $true) {
 
             # If in 'multi-input' mode, prompt for a file containing a list of computer names
-            $userFileName = Read-Host
+            $userFileName = Read-Host -Prompt "-->"
             
             if ($userFileName -eq 'q') {
                               
@@ -50,17 +50,18 @@ function Get_UserInput {
             }
 
             try {
-                $userInput_List = Get-Content $userFileName -ErrorAction Stop
-                
-                # Turn off loop if file reading is successful
-                $loopControl_ObtainUserInput = $false
+                $userInput_List = Get-Content $userFileName -ErrorAction Continue
+                if ($userInput_List -ne "") {
+                    # Turn off loop if file reading is successful
+                    $loopControl_ObtainUserInput = $false
+                }
             } catch {
                 Write-Host "Error reading the file. Please make sure the file exists and is accessible or enter 'quit' to exit."
             }
 
         } else {
             # If not in 'multi-input' mode, prompt for a single computer name
-            $user_Input = Read-Host
+            $user_Input = Read-Host -Prompt "-->"
             
             if ($user_Input -eq 'q') {
                 
@@ -69,11 +70,11 @@ function Get_UserInput {
                 
                 # Break out of the script since the user requested to quit
                 exit
+            } elseif ($user_Input -ne "") {
+                # Turn off loop since a single computer name is obtained
+                $loopControl_ObtainUserInput = $false
             }
             $userInput_List = @($user_Input)
-            
-            # Turn off loop since a single computer name is obtained
-            $loopControl_ObtainUserInput = $false
         }
     }
     return $userInput_List
