@@ -50,13 +50,14 @@ function Get_UserInput {
             }
 
             try {
-                $userInput_List = Get-Content $userFileName -ErrorAction Continue
+                $userInput_List = Get-Content $userFileName -ErrorAction Stop -ErrorVariable $errorContainer
                 if ($userInput_List -ne "") {
                     # Turn off loop if file reading is successful
                     $loopControl_ObtainUserInput = $false
                 }
             } catch {
-                Write-Host "Error reading the file. Please make sure the file exists and is accessible or enter 'quit' to exit."
+                Write-Host "Error reading the file. Please make sure the file exists and is accessible or enter 'q' to exit."
+                $userInput_List = ""
             }
 
         } else {
