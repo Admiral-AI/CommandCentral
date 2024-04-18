@@ -326,11 +326,11 @@ function Set-DisplayMenu {
     # Define the directories where the PowerShell scripts, 'menus', and settings are located
     $rootScriptDirectory = $PSScriptroot
     $systemDDirectory = Join-Path -Path $PSScriptroot -ChildPath $settingsJSON.Application_Settings.SystemD_Path
-    $functionsDirectory = Join-Path -Path $rootScriptDirectory -ChildPath $settingsJSON.Application_Settings.Functions_Path
+    $workingDirectory = Join-Path -Path $rootScriptDirectory -ChildPath $settingsJSON.Application_Settings.Functions_Path
 
     # Set the starting directory to the location of the 'Functions' directory
-    $startingDirectory = $functionsDirectory
-    Set-Location $functionsDirectory
+    $startingDirectory = $workingDirectory
+    Set-Location $workingDirectory
 
     # Using SystemD location setting, pull logo file
     $logoFileLocation = Join-Path -Path $($systemDDirectory) -ChildPath \Logo.txt
@@ -342,21 +342,21 @@ function Set-DisplayMenu {
         Write-Host $logoForMenu -ForegroundColor DarkYellow
 
         # Check if the starting and working directories match and provide option to quit accordingly
-        if ($startingDirectory -eq $functionsDirectory) {
+        if ($startingDirectory -eq $workingDirectory) {
             $optionToQuit = 1
         } else {
             $optionToQuit = 0
         }
 
         # List .ps1 files in the working directory
-        $ps1FilesArray = Get-ChildItem -Path $functionsDirectory -Filter "*.ps1"
+        $ps1FilesArray = Get-ChildItem -Path $workingDirectory -Filter "*.ps1"
         $ps1Options = @()
         Foreach ($ps1File in $ps1FilesArray) {
             $ps1Options += ($ps1File.BaseName)
         }
 
         # List subdirectories in the working directory
-        $subdirectories = Get-ChildItem -Path $functionsDirectory -Directory
+        $subdirectories = Get-ChildItem -Path $workingDirectory -Directory
         $subOptions = @()
         Foreach ($subDirectory in $subdirectories) { 
             $subOptions += ($subDirectory.BaseName)
@@ -387,7 +387,7 @@ function Set-DisplayMenu {
         if ($userChoice -le $ps1Options.Count) {
             # Run the selected PowerShell script
             $scriptSelected = $ps1Options[$userChoice - 1] + ".ps1"
-            $scriptPath = Join-Path $functionsDirectory $scriptSelected #.FullName
+            $scriptPath = Join-Path $workingDirectory $scriptSelected #.FullName
             Write-Host "Running script: $($ps1Options[$userChoice - 1])" -ForegroundColor Green
             Start-Sleep .75
             Unblock-File $scriptPath
@@ -400,13 +400,13 @@ function Set-DisplayMenu {
                 Write-Host "Selected subdirectory is empty." -ForegroundColor Red
                 Start-Sleep .75
             } else {
-                $functionsDirectory = Join-Path $functionsDirectory $selectedDir
+                $workingDirectory = Join-Path $workingDirectory $selectedDir.BaseName
                 Write-Host "Entered the selected subdirectory." -ForegroundColor Blue
                 Start-Sleep .75
             }
         } elseif (($userChoice -eq $($($ps1Options.Count) + $($subOptions.Count) + 1) -and ($optionToQuit -eq 0))) {
             # Go back one directory if not in the starting directory
-            $functionsDirectory = Split-Path -Path $functionsDirectory -Parent
+            $workingDirectory = Split-Path -Path $workingDirectory -Parent
             Clear-Host
             Write-Host "Went back one directory." -ForegroundColor Cyan
         } elseif ((($userChoice -eq $($($ps1Options.Count) + $($subOptions.Count) + 1) -or ($userChoice -eq 'q') -or ($userChoice -eq 'quit'))-and ($optionToQuit -eq 1))) {
@@ -418,7 +418,7 @@ function Set-DisplayMenu {
             Write-Host "Invalid entry, please enter an option from the list" -ForegroundColor Red
             Start-Sleep .75
         }
-
+        
         # Clear the console
         Clear-Host
 
