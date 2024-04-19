@@ -24,6 +24,14 @@ function Main {
     $CC_AppUnintallerviaControlPanelLocal = "CC-AppUnintallerviaControlPanel.ps1"
     $CC_AppUnintallerviaControlPanelLocal = Join-Path $packageLocal $CC_AppUnintallerviaControlPanelLocal
 
+    # Find and set admin credential location
+    $credList = ($CC_MainMenu_HashTable.UserCreds_HashTable).GetEnumerator() #| Where-Object { $_ -like "*_sprt" }
+    foreach ($cred in $credList) {
+        if ($cred.Name | Where-Object { $_ -like "*_sprt" }) {
+            $sprtCred = $cred.Name
+        }
+    }
+
     Write-Host ""
 
     if ($PSVersionTable.PSVersion.Major -ge 6) {
@@ -33,37 +41,37 @@ function Main {
         Write-Host "Press any key to acknowledge and continue:" -NoNewline
         $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 
-        $userInput_ListofPCs | Foreach-Object -ThrottleLimit 5 -Parallel {
-            #Action that will run in Parallel. Reference the current object via $PSItem and bring in outside variables with $USING:varname
+        $userInput_ListofPCs | Foreach-Object -ThrottleLimit 100000 -Parallel {
+            # Action that will run in Parallel. Reference the current object via $PSItem and bring in outside variables with $USING:varname
+
             $CC_AppUnintallerviaControlPanelLocal = $Using:CC_AppUnintallerviaControlPanelLocal
             $CC_MainMenu_HashTable = $Using:CC_MainMenu_HashTable
+            $sprtCred = $Using:sprtCred
 
-            function Invoke_UninstallviaControlPanelScript {
-                . $CC_AppUnintallerviaControlPanelLocal -CC_MainMenu_HashTable $CC_MainMenu_HashTable -inputPC $_
+            $scriptBlock = {
+                . $args[0] -CC_MainMenu_HashTable $args[1] -inputPC $args[2]
             }
 
-            # Start-Job -ScriptBlock ${Function:Invoke_UninstallviaControlPanelScript} | Receive-Job -Wait -AutoRemoveJob
+            # Notify and reboot the PCs; Wait and reconnect
+            try { 
+                Restart-Computer $_ -Credential $CC_MainMenu_HashTable.UserCreds_HashTable.$($sprtCred) -Force -Wait -Timeout 3 -ErrorAction Stop
+                $rebootConfirmed = $true
+            } catch { 
+                Write-Host "Reboot failed to complete within 15 minutes, please check on the PC and rerun the script"
+                $rebootConfirmed = $false
+            }
+            
+            if ($rebootConfirmed -eq $true) {
+                # Notify and start the uninstall job
+                Write-Host "Starting uninstaller for $($_)"
+                Start-Job -ScriptBlock $scriptBlock -ArgumentList $CC_AppUnintallerviaControlPanelLocal, $CC_MainMenu_HashTable, $_ | Receive-Job -Wait -AutoRemoveJob
+            }
 
-            Write-Host "The path is: $CC_AppUnintallerviaControlPanelLocal"
-            Write-Host "The hashtable is:"
-            $CC_MainMenu_HashTable.UserCreds_HashTable
-            Write-Host "The current PC is: $_"
         }
 
         Write-Host "Press any key to acknowledge and continue:" -NoNewline
         $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 
-        <#
-            $userInput_ListofPCs | ForEach-Object -ThrottleLimit 2 -Parallel  {
-                . $Using:CC_AppUnintallerviaControlPanelLocal -$CC_MainMenu_HashTable $Using:CC_MainMenu_HashTable -inputPC $_
-            }
-
-            # Call the path for each PC provided (extremely dangerous if misused, use -multiInput parameter above to control this)
-            foreach ($inputPC in $userInput_ListofPCs) {
-                Start-Process powershell.exe -ArgumentList "-File `"$($CC_AppUnintallerviaControlPanelLocal)`"  -CC_MainMenu_HashTable $($CC_MainMenu_HashTable) -inputPC $($inputPC)"
-                # -CC_MainMenu_HashTable `"$($CC_MainMenu_HashTable)`" -inputPC `"$($inputPC)`"
-            }
-        #>
     } elseif ($PSVersionTable.PSVersion.Major -le 5) {
         Write-Host "Your powershell version (major) is not above 5, seqeuntial processing capabilities are disabled for this script. Please update your powershell version to unlock."
         Write-Host "Press any key to acknowledge and continue:" -NoNewline
