@@ -42,8 +42,9 @@ $regPaths = @()
     $regPaths += "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
     $regPaths += "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
 
-    # Not using this path as this script is targeting system level installations
+    # Not using these paths as this script is targeting system level installations
     # $regPaths += "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+    # $regPaths += "HKCU:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
 
     $allAppRegKeys = @()
     $garbageAppKeys = @()
