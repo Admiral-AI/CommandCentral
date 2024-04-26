@@ -59,7 +59,7 @@ function Get_InstalledApps {
             if (($installedAppProperties.WindowsInstaller -eq 1) -and ($installedAppProperties.SystemComponent -ne 1)) {
                 $appsToUninstall += $installedApp
                 Write-Debug "$($installedApp.Name) Meets the first level matching criteria, added to uninstall array"
-            } elseif (($null -ne $installedAppProperties.UninstallString) -and ($installedAppProperties.WindowsInstaller -ne 1) -and ($null -ne $installedAppProperties.DisplayName)) {
+            } elseif ((($null -ne $installedAppProperties.DisplayName) -or ($null -ne $installedAppProperties.DisplayName_Localized)) -and ($null -ne $installedAppProperties.UninstallString) -and ($installedAppProperties.WindowsInstaller -ne 1)) {
                 $appsToUninstall += $installedApp
                 Write-Debug "$($installedApp.Name) Meets the second level matching criteria, added to uninstall array"
             } else {
