@@ -38,36 +38,49 @@ function Startup_Parameters {
 }
 
 function Get_InstalledApps {
-    $regPaths = @()
+$regPaths = @()
     $regPaths += "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
     $regPaths += "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
 
-    $allInstalledApps = @()
-    $appsToUninstall = @()
+    # Not using this path as this script is targeting system level installations
+    # $regPaths += "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+
+    $allAppRegKeys = @()
+    $garbageAppKeys = @()
+    $appsInControlPanel = @()
 
     try {
         foreach ($regPath in $regPaths) {
-            $allInstalledApps += Get-ChildItem -Path $($regPath)
+            $allAppRegKeys += Get-ChildItem -Path $($regPath)
         }
     } catch {
         Write-Host "Retrieving installed apps failed..."
     }
 
-    if ($null -ne $allInstalledApps) {
-        foreach ($installedApp in $allInstalledApps) {
-            $installedAppProperties = Get-ItemProperty -Path $installedApp.PSpath
-            if (($installedAppProperties.WindowsInstaller -eq 1) -and ($installedAppProperties.SystemComponent -ne 1)) {
-                $appsToUninstall += $installedApp
-                Write-Debug "$($installedApp.Name) Meets the first level matching criteria, added to uninstall array"
-            } elseif ((($null -ne $installedAppProperties.DisplayName) -or ($null -ne $installedAppProperties.DisplayName_Localized)) -and ($null -ne $installedAppProperties.UninstallString) -and ($installedAppProperties.WindowsInstaller -ne 1)) {
-                $appsToUninstall += $installedApp
-                Write-Debug "$($installedApp.Name) Meets the second level matching criteria, added to uninstall array"
+
+    if ($null -ne $allAppRegKeys) {
+        foreach ($appRegKey in $allAppRegKeys) {
+            $appRegKey_Properties = Get-ItemProperty -Path $appRegKey.PSpath
+            if (($appRegKey_Properties.SystemComponent -eq 1)) {
+                # This if statement removes some of the trash registry keys that are cluttering the data
+                $garbageAppKeys += $appRegKey
+                Write-Debug "$($appRegKey.Name) is designated as uninstallable."
+            } elseif (($appRegKey_Properties.WindowsInstaller -eq 1) -and ($appRegKey_Properties.SystemComponent -ne 1)) {
+	    	# This if statement sorts out apps that were installed by MSIs and saves them in a variable
+                $appsInControlPanel += $appRegKey
+                Write-Debug "$($appRegKey.Name) Meets the first level matching criteria, added to uninstall array"
+            } elseif ((($null -ne $appRegKey_Properties.DisplayName) -or ($null -ne $appRegKey_Properties.DisplayName_Localized)) -and ($null -ne $appRegKey_Properties.UninstallString) -and ($appRegKey_Properties.WindowsInstaller -ne 1)) {
+                # This if statement sorts out apps that were installed by EXEs and saves them in a variable
+		$appsInControlPanel += $appRegKey
+                Write-Debug "$($appRegKey.Name) Meets the second level matching criteria, added to uninstall array"
             } else {
-                Write-Debug "No match found for $($installedApp.Name)"
+                # This statement is a fallback
+		$garbageAppKeys += $appRegKey
+		Write-Debug "No match found for $($appRegKey.Name)"
             }
         }
     }
-    return $appsToUninstall
+    return $appsInControlPanel
 }
 
 function Approve_InstalledApps {
