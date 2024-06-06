@@ -126,7 +126,6 @@ function Set-DisplayMenu {
     # Package important variables in a hashtable in preparation to pass to scripts
     $CC_MainMenu_HashTable = @{
         CCScriptRoot = $($PSScriptRoot)
-        UserCreds_HashTable = $userCreds_HashTable
         SettingsJSON = $settingsJSON
     }
 
