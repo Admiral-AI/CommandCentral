@@ -21,6 +21,9 @@
           "CommandCentral_PSScript_Log": ".\\SystemD\\Logs\\CommandCentral_Runtime.log",
           "Comments": "This property defines log location settings"
         },
+      "Dependencies": {
+          "PSModules": []
+      },
       "Functions_Path": "\\Functions",
       "SystemD_Path": "\\SystemD",
       "Last_Updated": "03/18/2024",
