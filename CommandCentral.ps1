@@ -78,7 +78,7 @@ function Get-Updates {
 
     if ($updateAndRestartScriptBoolean -ne $true) {
         $moduleList = @(
-            'TUN.CredentialManager'
+            
         )
 
         foreach ($module in $moduleList) {
