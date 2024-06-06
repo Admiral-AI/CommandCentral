@@ -104,7 +104,13 @@ function Get-Updates {
 
         Write-Host "Attempted to write updates, now opening script again..."
         Start-Sleep 2
-        Start-Process powershell.exe -ArgumentList "-File `"$($PSCommandPath)`""
+        
+        if ($PSVersionTable.PSEdition -like "Desktop") {
+            Start-Process powershell.exe -ArgumentList "-File `"$($PSCommandPath)`""
+        } elseif ($PSVersionTable.PSEdition -like "Core") {
+            Start-Process pwsh -ArgumentList "-File `"$($PSCommandPath)`""
+        }
+
         Write-Host "Exiting CommandCentral..."
         Start-Sleep .75
     }
