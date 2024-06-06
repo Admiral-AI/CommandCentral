@@ -13,14 +13,17 @@
             "CommandCentral_Script_localRepo": "C:\\Temp\\CommandCentral\\CommandCentral.ps1",
             "JSON_Settings_localRepo": "C:\\Temp\\CommandCentral\\SystemD\\Settings.json"
           },
-          "UpdateRetrievalLocation": "Local_Repo",
-          "UpdatesOptIn": false,
+          "UpdateRetrievalLocation": "Dev_Repo",
+          "UpdatesOptIn": true,
           "Comments": "This property defines update locations for the script and supporting files"
         },
       "Log_Paths": {
           "CommandCentral_PSScript_Log": ".\\SystemD\\Logs\\CommandCentral_Runtime.log",
           "Comments": "This property defines log location settings"
         },
+      "Dependencies": {
+          "PSModules": []
+      },
       "Functions_Path": "\\Functions",
       "SystemD_Path": "\\SystemD",
       "Last_Updated": "03/18/2024",
