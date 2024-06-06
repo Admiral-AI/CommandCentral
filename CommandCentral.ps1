@@ -77,9 +77,7 @@ function Get-Updates {
     }
 
     if ($updateAndRestartScriptBoolean -ne $true) {
-        $moduleList = @(
-            
-        )
+        $moduleList = $settingsJSON.Application_Settings.Dependencies.PSModules
 
         foreach ($module in $moduleList) {
             if (Get-Module -ListAvailable -Name $module) {
