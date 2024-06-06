@@ -96,8 +96,8 @@ function Get-Updates {
         # Clear the screen before heading to the next functions
         Clear-Host
         
-        # Call the Get-UserCredentials function
-        Get-UserCredentials
+        # Call the Set-DisplayMenu function
+        Set-DisplayMenu
 
     } else { 
         $scriptPulledfromRepo | Out-File -FilePath $($PSCommandPath) -NoNewline
