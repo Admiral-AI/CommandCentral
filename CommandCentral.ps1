@@ -43,40 +43,66 @@ function Main {
 # Function to check for module and script updates
 function Get-Updates {
 
-    $providedJSONUpdateLocation = $settingsJSON.Application_Settings.Updates.UpdateRetrievalLocation
+    # Connectivity test, otherwise all the steps ahead will run into errors
+    if (($PSVersionTable.PSEdition -like "Desktop") -or ($IsWindows -eq $true) ) {
+        $internetConnectivity = Test-Connection time.windows.com -Ping -Count 1 -ErrorAction SilentlyContinue
+    } elseif ($IsLinux -eq $true) {
+        $internetConnectivity = Test-Connection ntp.ubuntu.com -Ping -Count 1 -ErrorAction SilentlyContinue
+    } elseif ($IsMacOS -eq $true) {
+        $internetConnectivity = Test-Connection time.apple.com -Ping -Count 1 -ErrorAction SilentlyContinue
+    } else {
+        Write-Output "Could not find a match on connectivity tests, report this bug"
+    }
 
+    $providedJSONUpdateLocation = $settingsJSON.Application_Settings.Updates.UpdateRetrievalLocation
     switch ($providedJSONUpdateLocation) {
         "Main_Repo" {$repoToPullFrom = $settingsJSON.Application_Settings.Updates.Main_Repo.CommandCentral_Script_mainGitRepo ; break}
         "Dev_Repo" {$repoToPullFrom = $settingsJSON.Application_Settings.Updates.Dev_Repo.CommandCentral_Script_devGitRepo ; break}
         "Local_Repo" {$repoToPullFrom = $settingsJSON.Application_Settings.Updates.Local_Repo.CommandCentral_Script_localRepo ; break}
     }
 
-    if ((Invoke-WebRequest $repoToPullFrom -DisableKeepAlive -UseBasicParsing -Method Head).StatusDescription -eq "OK") {
-        $scriptPulledfromRepo = $(Invoke-RestMethod -Uri $repoToPullFrom)
+    if (($internetConnectivity.Status) -like "Success") {
+        if ((Invoke-WebRequest $repoToPullFrom -DisableKeepAlive -UseBasicParsing -Method Head).StatusDescription -eq "OK") {
+            $scriptPulledfromRepo = $(Invoke-RestMethod -Uri $repoToPullFrom)
+        } else {
+            Write-Output "The repo in settings: $($repoToPullFrom)"
+            Write-Output "is not available, please check your settings file and investigate the issue."
+        }
     } elseif ((Test-Path $repoToPullFrom) -eq $true) {
         $scriptPulledfromRepo = Get-Content -Path $($repoToPullFrom) -Raw
     } else {
-        Write-Host "General failure when pulling information from repository, please re-run script again or redownload the files."
+        Write-Host "General failure when pulling information from repository, check the logs for more information."
         if ($repoToPullFrom -eq "Local_Repo") {
             Write-Host "Alternatively contact your administrator since this is a locally run repository"
         }
     }
 
-    $scriptOnLocalDisk = Get-Content -Path $($PSCommandPath) -Raw
+    if ($null -ne $scriptPulledfromRepo) {
+        $scriptOnLocalDisk = Get-Content -Path $($PSCommandPath) -Raw
 
-    # Use Compare-Object to compare the contents of the two files
-    $fileComparison = Compare-Object -ReferenceObject ($scriptPulledfromRepo) -DifferenceObject ($scriptOnLocalDisk)
+        # Use Compare-Object to compare the contents of the two files
+        $fileComparison = Compare-Object -ReferenceObject ($scriptPulledfromRepo) -DifferenceObject ($scriptOnLocalDisk)
 
-    # Check the result
-    if ($fileComparison.Count -eq 0) {
-        Write-Output "No updates found, proceeding to update modules."
-        $updateAndRestartScriptBoolean = $false
-    } else {
-        Write-Output "Update found! Updating local script."
-        $updateAndRestartScriptBoolean = $true
+        # Check the result
+        if ($fileComparison.Count -eq 0) {
+            Write-Output "No updates found, proceeding to update modules."
+            $updateAndRestartScriptBoolean = $false
+        } else {
+            Write-Output "Update found! Updating local script."
+            $updateAndRestartScriptBoolean = $true
+        }
+    } elseif ($null -eq $scriptPulledfromRepo) {
+        Write-Output "The script could not pull the updates from the repository."
+        if ($internetConnectivity.Status -notlike 'Success') {
+            Write-Output 'Something appears to be wrong with your internet connection...'
+            Write-Output 'We will skip the update check now but please proceed with caution.'
+            Write-Output 'Some scripts may be broken.'
+
+            Set-DisplayMenu
+        }
     }
 
-    if ($updateAndRestartScriptBoolean -ne $true) {
+    if ($updateAndRestartScriptBoolean -eq $false) {
         $moduleList = $settingsJSON.Application_Settings.Dependencies.PSModules
 
         foreach ($module in $moduleList) {
@@ -97,7 +123,7 @@ function Get-Updates {
         # Call the Set-DisplayMenu function
         Set-DisplayMenu
 
-    } else { 
+    } elseif ($updateAndRestartScriptBoolean -eq $true) { 
         $scriptPulledfromRepo | Out-File -FilePath $($PSCommandPath) -NoNewline
 
         Write-Host "Attempted to write updates..."
