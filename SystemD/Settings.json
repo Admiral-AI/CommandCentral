@@ -13,7 +13,7 @@
             "CommandCentral_Script_localRepo": "C:\\Temp\\CommandCentral\\CommandCentral.ps1",
             "JSON_Settings_localRepo": "C:\\Temp\\CommandCentral\\SystemD\\Settings.json"
           },
-          "UpdateRetrievalLocation": "Dev_Repo",
+          "UpdateRetrievalLocation": "Main_Repo",
           "UpdatesOptIn": true,
           "Comments": "This property defines update locations for the script and supporting files"
         },
