@@ -44,7 +44,14 @@ function Main {
 function Get-Updates {
 
     # Connectivity test, otherwise all the steps ahead will run into errors
-    if (($PSVersionTable.PSEdition -like "Desktop") -or ($IsWindows -eq $true) ) {
+    if (($PSVersionTable.PSEdition -like "Desktop")) {
+        $internetConnectivity = Test-Connection time.windows.com -Count 1 -ErrorAction SilentlyContinue
+        # PowerShell 5.1 does not return status codes with Test-Connection, we will now manually add it
+        if ($null -ne $internetConnectivity) {
+            # Make the variable an hashtable and set Status to success since there was a value returned for connectivity 
+            $internetConnectivity = @{Status = "Success"}
+        }
+    } elseif (($IsWindows -eq $true)) {
         $internetConnectivity = Test-Connection time.windows.com -Ping -Count 1 -ErrorAction SilentlyContinue
     } elseif ($IsLinux -eq $true) {
         $internetConnectivity = Test-Connection ntp.ubuntu.com -Ping -Count 1 -ErrorAction SilentlyContinue
@@ -144,6 +151,13 @@ function Get-Updates {
 
         Write-Output "Exiting CommandCentral..."
         Start-Sleep .75
+    }
+}
+
+# Function to start specific scripts at startup (useful for password stores)
+function Start-RunOnceItems {
+    foreach ($runItem in $settingsJSON.Application_Settings.RunOnce_Array) {
+
     }
 }
 
