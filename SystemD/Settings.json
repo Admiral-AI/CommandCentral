@@ -28,13 +28,5 @@
       "SystemD_Path": "\\SystemD",
       "Last_Updated": "03/18/2024",
       "Comments": "This property defines global script settings"
-    },
-  "User_Settings": {
-      "Placeholder": null,
-      "comments": "This property defines user specific settings"
-    },
-  "CustomFunction_Settings": {
-      "Placeholder_AppUninstaller": null,
-      "Placeholder_Query4Information": null
     }
 }

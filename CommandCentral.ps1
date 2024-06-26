@@ -129,17 +129,20 @@ function Get-Updates {
         Write-Host "Attempted to write updates..."
         Start-Sleep 2
         
-        if (($PSVersionTable.PSEdition -like "Desktop") -or ($IsWindows -eq $true)) {
-            Write-Host "The script will now restart..."
+        if (($PSVersionTable.PSEdition -like "Desktop")) {
+            Write-Output "The script will now restart..."
             Start-Process powershell.exe -ArgumentList "-File `"$($PSCommandPath)`""
+        } elseif (($PSVersionTable.PSEdition -like "Core") -and ($IsWindows -eq $true)) {
+            Write-Output "The script will now restart..."
+            Start-Process pwsh -ArgumentList "-File `"$($PSCommandPath)`""
         } elseif (($PSVersionTable.PSEdition -like "Core") -and ($IsWindows -ne $true)) {
-            Write-Host "Automatic script restart is not supported for Linux & MacOS, please restart the script manually."
+            Write-Output "Automatic script restart is not supported for Linux & MacOS, please restart the script manually."
             Start-Sleep .75
             # Start-Process pwsh is broken in powershell Core on non-windows platforms
             # Start-Process pwsh -ArgumentList "-File `"$($PSCommandPath)`""
         }
 
-        Write-Host "Exiting CommandCentral..."
+        Write-Output "Exiting CommandCentral..."
         Start-Sleep .75
     }
 }
